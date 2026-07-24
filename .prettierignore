@@ -1,0 +1,7 @@
+dist/
+
+# Firebase emulator suite
+/data/
+
+/functions/**/*.js
+/functions/**/*.js.map

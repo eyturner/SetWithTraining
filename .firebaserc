@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "setwithfriends",
+    "staging": "setwithfriends-dev"
+  }
+}
