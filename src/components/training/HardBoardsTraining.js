@@ -23,10 +23,6 @@ function shuffle(array) {
   return arr;
 }
 
-function signature(cards) {
-  return [...cards].sort().join(",");
-}
-
 const useStyles = makeStyles((theme) => ({
   instructions: {
     padding: theme.spacing(2),
@@ -47,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 function HardBoardsTraining() {
   const classes = useStyles();
   const user = useContext(UserContext);
-  const { volume } = useContext(SettingsContext);
+  const { volume, slowSetThreshold } = useContext(SettingsContext);
 
   const [dueItems, setDueItems] = useState(() => getDueItems(user.id));
   const [totalQueued, setTotalQueued] = useState(
@@ -59,6 +55,7 @@ function HardBoardsTraining() {
   const [selected, setSelected] = useState([]);
   const [revealed, setRevealed] = useState(false);
   const [snack, setSnack] = useState({ open: false });
+  const [startTime, setStartTime] = useState(() => Date.now());
   const [playSuccess] = useSound(foundSfx);
   const [playFail] = useSound(failSfx);
 
@@ -71,6 +68,7 @@ function HardBoardsTraining() {
     setBoard(next[0] ? shuffle(next[0].board) : []);
     setSelected([]);
     setRevealed(false);
+    setStartTime(Date.now());
   }
 
   function handleClick(card) {
@@ -82,23 +80,27 @@ function HardBoardsTraining() {
       const vals = [...prev, card];
       if (vals.length === currentItem.cards.length) {
         if (checkSet(...vals)) {
-          if (signature(vals) === signature(currentItem.cards)) {
+          const elapsed = Date.now() - startTime;
+          if (elapsed <= Number(slowSetThreshold) * 1000) {
             if (volume === "on") playSuccess();
             reviewItem(user.id, currentItem.id, true);
             setSnack({
               open: true,
               variant: "success",
-              message: "Nice, you found it! Moving to the next board.",
+              message: "Nice, found it in time! Moving to the next board.",
             });
             refresh();
-            return [];
+          } else {
+            if (volume === "on") playFail();
+            reviewItem(user.id, currentItem.id, false);
+            setRevealed(true);
+            setSnack({
+              open: true,
+              variant: "warning",
+              message:
+                "That's a Set, but not fast enough — here's the one that tripped you up.",
+            });
           }
-          setSnack({
-            open: true,
-            variant: "info",
-            message:
-              "That's a Set, but not the one you missed — keep looking!",
-          });
         } else {
           if (volume === "on") playFail();
           setSnack({ open: true, variant: "error", message: "Not a Set!" });
@@ -172,8 +174,9 @@ function HardBoardsTraining() {
       {snackbar}
       <Paper className={classes.instructions}>
         <Typography variant="body1" gutterBottom>
-          This board tripped you up before. Find the Set you missed — the
-          cards are in a new order this time.
+          This board tripped you up before. Find any Set on it within{" "}
+          {slowSetThreshold} seconds to move up — the cards are in a new
+          order this time.
         </Typography>
         <Typography variant="body2" color="textSecondary">
           {dueItems.length} board{dueItems.length === 1 ? "" : "s"} due
