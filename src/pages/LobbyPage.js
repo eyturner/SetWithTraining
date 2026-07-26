@@ -9,11 +9,13 @@ import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import makeStyles from "@mui/styles/makeStyles";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import InternalLink from "../components/InternalLink";
+import { UserContext } from "../context";
 import { modes } from "../util";
+import { getDueItems } from "../utils/srsQueue";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -26,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   startButton: {
     marginTop: theme.spacing(3),
   },
+  trainingButton: {
+    marginTop: theme.spacing(1.5),
+  },
   links: {
     padding: "16px 0",
   },
@@ -34,8 +39,11 @@ const useStyles = makeStyles((theme) => ({
 function LobbyPage() {
   const classes = useStyles();
   const navigate = useNavigate();
+  const user = useContext(UserContext);
   const [mode, setMode] = useState("normal");
   const [enableHint, setEnableHint] = useState(false);
+
+  const dueCount = getDueItems(user.id).length;
 
   function startGame() {
     const params = new URLSearchParams({ mode });
@@ -94,6 +102,43 @@ function LobbyPage() {
           onClick={startGame}
         >
           Start Game
+        </Button>
+      </Paper>
+
+      <Paper className={classes.paper}>
+        <Typography variant="h5" gutterBottom>
+          Training Mode
+        </Typography>
+        <Typography variant="body1" color="textSecondary">
+          Sharpen specific skills with focused drills.
+        </Typography>
+
+        <Button
+          className={classes.trainingButton}
+          variant="outlined"
+          color="primary"
+          fullWidth
+          onClick={() => navigate("/game?training=find-third")}
+        >
+          Find the Third
+        </Button>
+        <Button
+          className={classes.trainingButton}
+          variant="outlined"
+          color="primary"
+          fullWidth
+          onClick={() => navigate("/game?training=find-all")}
+        >
+          Find All Sets
+        </Button>
+        <Button
+          className={classes.trainingButton}
+          variant="outlined"
+          color="primary"
+          fullWidth
+          onClick={() => navigate("/game?training=hard-boards")}
+        >
+          Practice Hard Boards{dueCount > 0 ? ` (${dueCount} due)` : ""}
         </Button>
       </Paper>
 

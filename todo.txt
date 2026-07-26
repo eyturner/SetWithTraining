@@ -1,0 +1,4 @@
+1. Find third card or NO_SET 60 sec.
+2. Find third card or NO_SET 180 sec.
+3. 5 12-card SETS trying to find all SETS available
+4. Button to save configuration for later review

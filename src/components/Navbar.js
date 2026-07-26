@@ -22,6 +22,7 @@ import ColorChoiceDialog from "./ColorChoiceDialog";
 import InternalLink from "./InternalLink";
 import KeyboardLayoutDialog from "./KeyboardLayoutDialog";
 import PromptDialog from "./PromptDialog";
+import SlowSetThresholdDialog from "./SlowSetThresholdDialog";
 import User from "./User";
 import UserColorDialog from "./UserColorDialog";
 
@@ -39,6 +40,7 @@ function Navbar({
   const [changeUserColor, setChangeUserColor] = useState(false);
   const [changeCardColors, setChangeCardColors] = useState(false);
   const [changeKeyboardLayout, setChangeKeyboardLayout] = useState(false);
+  const [changeSlowSetThreshold, setChangeSlowSetThreshold] = useState(false);
 
   function handleMenu(event) {
     setAnchorEl(event.currentTarget);
@@ -177,6 +179,14 @@ function Navbar({
           </MenuItem>
           <MenuItem
             onClick={() => {
+              setChangeSlowSetThreshold(true);
+              handleCloseMenu();
+            }}
+          >
+            Change slow-set threshold
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               if (settings.volume === "on") playLayout();
               settings.toggleLayoutOrientation();
               settings.toggleCardOrientation();
@@ -208,6 +218,11 @@ function Navbar({
           open={changeKeyboardLayout}
           onClose={() => setChangeKeyboardLayout(false)}
           title="Change Keyboard Layout"
+        />
+        <SlowSetThresholdDialog
+          open={changeSlowSetThreshold}
+          onClose={() => setChangeSlowSetThreshold(false)}
+          title="Change Slow-Set Threshold"
         />
       </Toolbar>
     </AppBar>

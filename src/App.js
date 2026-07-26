@@ -9,7 +9,7 @@ import { SettingsContext, UserContext } from "./context";
 import useStorage from "./hooks/useStorage";
 import AboutPage from "./pages/AboutPage";
 import ConductPage from "./pages/ConductPage";
-import GamePage from "./pages/GamePage";
+import GameRoute from "./pages/GameRoute";
 import HelpPage from "./pages/HelpPage";
 import LegalPage from "./pages/LegalPage";
 import LobbyPage from "./pages/LobbyPage";
@@ -60,6 +60,10 @@ function App() {
   };
 
   const [volume, setVolume] = useStorage("volume", "on");
+  const [slowSetThreshold, setSlowSetThreshold] = useStorage(
+    "slowSetThreshold",
+    "15",
+  );
 
   useEffect(() => {
     const parsedCustoms = JSON.parse(customColors);
@@ -117,6 +121,8 @@ function App() {
                 toggleLayoutOrientation,
                 cardOrientation,
                 toggleCardOrientation,
+                slowSetThreshold,
+                setSlowSetThreshold,
               }}
             >
               <WelcomeDialog />
@@ -132,7 +138,7 @@ function App() {
                 <Route path="/conduct" element={<ConductPage />} />
                 <Route path="/legal" element={<LegalPage />} />
                 <Route path="/" element={<LobbyPage />} />
-                <Route path="/game" element={<GamePage />} />
+                <Route path="/game" element={<GameRoute />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>

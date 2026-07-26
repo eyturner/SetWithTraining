@@ -8,6 +8,7 @@ const useStyles = makeStyles((theme) => ({
     margin: 3,
   },
   card: {
+    position: "relative",
     boxSizing: "border-box",
     background: "#fff",
     border: `1px solid ${theme.palette.text.primary}`,
@@ -27,6 +28,21 @@ const useStyles = makeStyles((theme) => ({
   },
   active: {
     boxShadow: "0px 0px 5px 3px #4b9e9e !important",
+  },
+  ticks: {
+    position: "absolute",
+    bottom: 3,
+    left: 0,
+    right: 0,
+    display: "flex",
+    justifyContent: "center",
+    gap: 3,
+    pointerEvents: "none",
+  },
+  tick: {
+    width: 10,
+    height: 4,
+    borderRadius: 2,
   },
 }));
 
@@ -76,7 +92,7 @@ function ResponsiveSetCard(props) {
   const classes = useStyles();
 
   // Black magic below to scale cards given any width
-  const { width, value, onClick, background, active } = props;
+  const { width, value, onClick, background, active, ticks } = props;
   const height = Math.round(width / 1.6);
   const margin = Math.round(width * 0.035);
   const contentWidth = width - 2 * margin;
@@ -114,6 +130,17 @@ function ResponsiveSetCard(props) {
           colorOverride={props.colorOverride}
         />
       ))}
+      {ticks && ticks.length > 0 && (
+        <div className={classes.ticks}>
+          {ticks.map((tickColor, i) => (
+            <div
+              key={i}
+              className={classes.tick}
+              style={{ background: tickColor }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

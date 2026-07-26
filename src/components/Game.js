@@ -25,6 +25,8 @@ function Game({
   gameMode,
   answer,
   lastSet,
+  cardBackgrounds,
+  cardTicks,
 }) {
   const {
     keyboardLayout,
@@ -122,9 +124,10 @@ function Game({
       positionX,
       positionY,
       background:
-        answer && answer.includes(board[i])
+        (cardBackgrounds && cardBackgrounds[board[i]]) ||
+        (answer && answer.includes(board[i])
           ? "rgba(0, 0, 255, 0.15)"
-          : "initial",
+          : "initial"),
       opacity: 1,
       inplay: true,
     };
@@ -253,6 +256,7 @@ function Game({
             background={cards[card].background}
             active={selected.includes(card)}
             onClick={cards[card].inplay ? () => onClick(card) : null}
+            ticks={cardTicks && cardTicks[card]}
           />
         </animated.div>
       ))}

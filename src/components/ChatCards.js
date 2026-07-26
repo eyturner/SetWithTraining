@@ -26,11 +26,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ChatCards({ item, gameMode, startedAt }) {
+function ChatCards({ item, gameMode, previousTime }) {
   const classes = useStyles();
 
   return (
-    <Tooltip arrow placement="left" title={formatTime(item.time - startedAt)}>
+    <Tooltip arrow placement="left" title={formatTime(item.time - previousTime)}>
       <div className={classes.logEntry}>
         <div className={classes.logEntryText}>
           <Typography variant="subtitle2" style={{ marginRight: "0.2em" }}>

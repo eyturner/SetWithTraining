@@ -1,56 +1,61 @@
-# Set with Friends
+# Set with Training
 
 ![Logo](https://i.imgur.com/YTldFYX.png)
 
-This is the source code for [Set with Friends](https://setwithfriends.com/), an
-online, multiplayer implementation of the real-time card game
+This is a solo-practice fork of [Set with Friends](https://setwithfriends.com/),
+a browser implementation of the real-time card game
 [Set](<https://en.wikipedia.org/wiki/Set_(card_game)>). Your goal is to find
 triplets of cards that follow a certain pattern as quickly as possible.
 
-- [Web version](https://setwithfriends.com/)
-- [Official Discord](https://discord.gg/XbjJyc9)
+The original project is an online multiplayer game backed by Firebase. This
+fork strips out all of the networking — there's no server, no accounts, and no
+multiplayer — and turns it into a self-contained, offline-capable trainer for
+getting faster at spotting Sets by yourself. All game state and stats live in
+your browser's `localStorage`.
+
+- [Original project](https://setwithfriends.com/) (online multiplayer version)
+
+## Training Mode
+
+In addition to the regular solo game, the lobby has a **Training Mode** panel
+with a few focused drills:
+
+- **Find the Third** — you're shown two cards and have 60 seconds to decide
+  whether a third card exists that completes a Set with them (and if so,
+  identify it). Builds the pattern-matching reflex needed to spot the
+  "conjugate" card quickly.
+- **Find All Sets** — given a 12-card board, find every Set on it before
+  moving to the next board, across 5 boards. Builds board-scanning speed and
+  thoroughness.
+- **Practice Hard Boards** — a spaced-repetition queue (Leitner system) of
+  boards you were slow to solve during a regular game. Whenever a Set takes
+  longer than your configured "slow-set threshold" to find, that board gets
+  queued up for review at increasing intervals (10 min, 1 hour, 1 day, 3 days,
+  1 week) so you drill your actual weak spots instead of random boards.
+
+Every solo game also keeps a **Set Log** showing each Set you found and how
+long it took, and records stats (rounds played, accuracy, best/average time)
+per training type so you can track improvement over time.
 
 ## Technical Details
 
-This app was built on a serverless stack primarily using the
-[Firebase Realtime Database](https://firebase.google.com/docs/database), along
-with [Firebase Cloud Functions](https://firebase.google.com/docs/functions) for
-more complex or sensitive operations. The frontend was built with
-[React](https://reactjs.org/), with components from
-[Material UI](https://material-ui.com/).
+The frontend is built with [React](https://reactjs.org/), with components from
+[Material UI](https://material-ui.com/), and is written in JavaScript in the
+`src/` folder. There is no backend: game state, training queues, and stats are
+persisted entirely client-side via `localStorage`.
 
-Code for the frontend is written in JavaScript and located in the `src/` folder,
-while serverless functions are written in TypeScript and located in the
-`functions/` folder.
+The latest development version of the code is on the `main` branch.
 
-The latest development version of the code is on the `main` branch. We use
-GitHub Actions to automate our build and deployment process on Netlify, after a
-new release is created with version number `vA.B.C`.
+## Development
 
-## Contributing
-
-This game is currently in maintenance mode, and we'll only accept bug fixes. I
-would recommend talking to us on Discord (link above) if you really want to see
-a new feature added. We also have monthly community meetings organized there.
-
-To build the site for development:
+Since there's no backend, getting set up is simple:
 
 - Install Node 20 and npm 10.
-- Run `npm install -g firebase-tools` to globally install the Firebase CLI.
 - Run `npm install` in the root folder to get dependencies.
-- Run `npm install` in the `functions` folder.
-- To start the project, run `npm run develop`. This runs a script, which is
-  responsible for doing several things concurrently:
-  - Build the TypeScript cloud functions in watch mode.
-  - Start the Firebase Local Emulator Suite.
-  - Start the frontend dev server with Vite + React.
+- Run `npm run dev` to start the Vite dev server.
 
-The site can be opened at `http://localhost:5173`.
-
-You should also be able to access the Emulator UI at `http://localhost:4000`,
-which contains useful information and allows you to inspect/modify the database
-during development. Changes to client code in `src` should be immediately
-visible, as well as changes to code in `functions`.
+The site can be opened at `http://localhost:5173`. Changes to code in `src`
+are reflected immediately.
 
 Other useful commands:
 
@@ -60,39 +65,32 @@ npm test
 
 # Bundle the application into static assets.
 npm run build
-npm run build:preview
+npm run preview
 
 # Format the codebase with Prettier.
 npm run format
-
-# Run development server targeting setwithfriends-dev project.
-npm run dev -- --mode preview
-
-# Run development server targeting production data. This requires Eric to update
-# the "Browser key (auto created by Firebase)" website restrictions at
-# https://console.cloud.google.com/apis/credentials to allow traffic.
-npm run dev -- --mode production
 ```
+
+Note: this repo still carries some unused scaffolding from the original
+Firebase-backed project (the `functions/` folder, `firebase.json`,
+`rundev.js`, and a few unreferenced pages/components under `src/`) that
+predates the removal of the networking layer and isn't needed to build or run
+the app.
 
 ## Deployment
 
-As mentioned above, the latest changes to the `main` branch are deployed
-automatically to Netlify using the `npm run build` script. If you try to run
-this locally, it will not work due to protections on the production database.
-Instead, you can preview a release build configured to connect to the local
-emulator suite using the `npm run build:dev` script.
-
-The other parts of the app (serverless functions, database rules) are deployed
-to production using GitHub Actions on the `main` branch. The
-[staging environment](https://setwithfriends-dev.web.app/) gets automatic deploy
-previews when CI on the `main` branch passes. It is useful for seeing the latest
-version of the app and making sure that nothing is broken before releasing to
-production.
+Since the app is now a static frontend with no backend, `npm run build`
+produces a fully self-contained `dist/` folder that can be hosted anywhere
+that serves static files (Netlify, Vercel, GitHub Pages, a plain S3 bucket,
+etc.) — no database, functions, or environment-specific configuration
+required.
 
 ## License
 
-Built by [Eric Zhang](https://github.com/ekzhang) and
-[Cynthia Du](https://github.com/cynthiakedu).
+Originally built by [Eric Zhang](https://github.com/ekzhang) and
+[Cynthia Du](https://github.com/cynthiakedu) as
+[Set with Friends](https://setwithfriends.com/); this fork adapts their work
+into an offline, solo training tool.
 
 All source code is available under the [MIT License](LICENSE.txt). We are not
 affiliated with _Set Enterprises, Inc._, or the SET® card game.

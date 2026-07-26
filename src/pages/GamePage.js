@@ -12,12 +12,14 @@ import useSound from "use-sound";
 
 import failSfx from "../assets/failedSetSound.mp3";
 import foundSfx from "../assets/successfulSetSound.mp3";
+import Chat from "../components/Chat";
 import Game from "../components/Game";
 import GameSidebar from "../components/GameSidebar";
 import SnackContent from "../components/SnackContent";
 import { SettingsContext, UserContext } from "../context";
 import useKeydown from "../hooks/useKeydown";
 import { recordGame } from "../utils/localStats";
+import { enqueueSlowSet } from "../utils/srsQueue";
 import {
   checkSet,
   checkSetUltra,
@@ -63,6 +65,13 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(3),
     textAlign: "center",
   },
+  chatPanel: {
+    display: "flex",
+    flexDirection: "column",
+    height: 200,
+    marginTop: theme.spacing(2),
+    padding: 8,
+  },
 }));
 
 function shuffle(array) {
@@ -80,7 +89,7 @@ function newGameData() {
 
 function GamePage() {
   const user = useContext(UserContext);
-  const { volume } = useContext(SettingsContext);
+  const { volume, slowSetThreshold } = useContext(SettingsContext);
   const classes = useStyles();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -177,6 +186,21 @@ function GamePage() {
         ? { c1: cards[0], c2: cards[1], c3: cards[2], c4: cards[3] }
         : { c1: cards[0], c2: cards[1], c3: cards[2] };
     const key = `e_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+    if (gameMode === "normal" || gameMode === "setjr") {
+      const lastTime = history.length
+        ? history[history.length - 1].time
+        : game.startedAt;
+      const elapsed = Date.now() - lastTime;
+      if (elapsed > Number(slowSetThreshold) * 1000) {
+        enqueueSlowSet(user.id, {
+          board: current.slice(0, boardSize),
+          cards,
+          gameMode,
+        });
+      }
+    }
+
     setGameData((prev) => ({
       ...prev,
       events: {
@@ -310,6 +334,14 @@ function GamePage() {
           className={classes.sideColumn}
         >
           <GameSidebar game={game} scores={scores} />
+          <Paper className={classes.chatPanel}>
+            <Chat
+              title="Set Log"
+              history={history}
+              gameMode={gameMode}
+              startedAt={game.startedAt}
+            />
+          </Paper>
           <Box mt={2}>
             {hasHint(game) && (
               <Button
