@@ -15,7 +15,7 @@ export default defineConfig({
     },
   },
 
-  base: "/SetWithTraining",
+  base: "/SetWithTraining/",
 
   plugins: [
     // Get .js files to be treated as .jsx files with React syntax.
