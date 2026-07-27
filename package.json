@@ -49,14 +49,15 @@
   "scripts": {
     "dev": "vite dev",
     "develop": "node rundev.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "build:dev": "vite build --mode development",
     "build:preview": "vite build --mode preview",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src",
     "test": "vitest",
-    "format": "prettier --write .",
-    "deploy": "gh-pages -d dist"
+    "format": "prettier --write ."
   },
   "browserslist": [
     ">0.2%",
