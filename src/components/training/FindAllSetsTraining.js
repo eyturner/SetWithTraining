@@ -15,6 +15,7 @@ import foundSfx from "../../assets/successfulSetSound.mp3";
 import { SettingsContext, UserContext } from "../../context";
 import { checkSet, formatTime, generateCards, removeCard } from "../../util";
 import useMoment from "../../hooks/useMoment";
+import { addGameRecord, computeSetTimingStats } from "../../utils/gameHistoryDb";
 import { readTrainingStats, recordTrainingGame } from "../../utils/trainingStats";
 import Game from "../Game";
 import SnackContent from "../SnackContent";
@@ -157,6 +158,7 @@ function FindAllSetsTraining() {
   const gameEndedAtRef = useRef(null);
   const boardStartedAtRef = useRef(Date.now());
   const lastEventAtRef = useRef(Date.now());
+  const setTimesRef = useRef([]);
   const nextBoardTimeout = useRef(null);
 
   useEffect(() => {
@@ -199,6 +201,7 @@ function FindAllSetsTraining() {
             const now = Date.now();
             const elapsed = now - lastEventAtRef.current;
             lastEventAtRef.current = now;
+            setTimesRef.current.push(elapsed);
 
             const newFoundSets = [...foundSets, { signature: sig, cards: vals }];
             setFoundSets(newFoundSets);
@@ -249,6 +252,17 @@ function FindAllSetsTraining() {
           duration: gameElapsed,
         })
       );
+      const { avgSetTime, longestSetTime } = computeSetTimingStats(
+        setTimesRef.current,
+      );
+      addGameRecord(user.id, {
+        mode: "find-all",
+        numSets: totalSetsFound + 1,
+        duration: gameElapsed,
+        avgSetTime,
+        longestSetTime,
+        playedAt: gameStartedAtRef.current,
+      });
     } else {
       nextBoardTimeout.current = setTimeout(() => {
         setBoardState(newBoard());
@@ -278,6 +292,7 @@ function FindAllSetsTraining() {
     gameEndedAtRef.current = null;
     boardStartedAtRef.current = Date.now();
     lastEventAtRef.current = Date.now();
+    setTimesRef.current = [];
   }
 
   function handleClose(event, reason) {

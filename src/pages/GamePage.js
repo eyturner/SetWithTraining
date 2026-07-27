@@ -18,6 +18,7 @@ import GameSidebar from "../components/GameSidebar";
 import SnackContent from "../components/SnackContent";
 import { SettingsContext, UserContext } from "../context";
 import useKeydown from "../hooks/useKeydown";
+import { addGameRecord, computeSetTimingStats } from "../utils/gameHistoryDb";
 import { recordGame } from "../utils/localStats";
 import { enqueueSlowSet } from "../utils/srsQueue";
 import {
@@ -155,8 +156,21 @@ function GamePage() {
       sets: scores[user.id] || 0,
       duration: game.endedAt - game.startedAt,
     });
-    // scores is a new object reference each render but its values are stable
-    // once game.status is "done", so we omit it from deps intentionally
+
+    const setTimes = history.map((event, i) =>
+      i === 0 ? event.time - game.startedAt : event.time - history[i - 1].time,
+    );
+    const { avgSetTime, longestSetTime } = computeSetTimingStats(setTimes);
+    addGameRecord(user.id, {
+      mode: gameMode,
+      numSets: scores[user.id] || 0,
+      duration: game.endedAt - game.startedAt,
+      avgSetTime,
+      longestSetTime,
+      playedAt: game.startedAt,
+    });
+    // scores/history are new references each render but their values are
+    // stable once game.status is "done", so we omit them from deps intentionally
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.status, game.startedAt, game.endedAt, gameMode, user.id]);
 

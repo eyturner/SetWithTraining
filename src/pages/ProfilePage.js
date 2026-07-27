@@ -8,14 +8,14 @@ import Select from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
 import makeStyles from "@mui/styles/makeStyles";
 import { useContext, useState } from "react";
-import { Navigate } from "react-router-dom";
 
+import GameHistoryTable from "../components/GameHistoryTable";
 import Loading from "../components/Loading";
-import ProfileGamesTable from "../components/ProfileGamesTable";
 import ProfileName from "../components/ProfileName";
 import Subheading from "../components/Subheading";
 import UserStatistics from "../components/UserStatistics";
 import { UserContext } from "../context";
+import useGameHistory from "../hooks/useGameHistory";
 import useStats from "../hooks/useStats";
 import { modes } from "../util";
 
@@ -57,19 +57,9 @@ function ProfilePage() {
   const classes = useStyles();
 
   const [stats, loadingStats] = useStats(userId);
-  const [redirect, setRedirect] = useState(null);
   const [variant, setVariant] = useState("all");
   const [modeVariant, setModeVariant] = useState("normal");
-
-  const handleClickGame = (gameId) => {
-    setRedirect(`/room/${gameId}`);
-  };
-
-  if (redirect) {
-    return <Navigate push to={redirect} />;
-  }
-
-  const gamesWithScores = {};
+  const games = useGameHistory(userId);
 
   return (
     <Container sx={{ pb: 2 }}>
@@ -128,11 +118,7 @@ function ProfilePage() {
           </Grid>
         </Grid>
         <Subheading style={{ textAlign: "left" }}>Finished Games</Subheading>
-        <ProfileGamesTable
-          userId={userId}
-          handleClickGame={handleClickGame}
-          gamesWithScores={gamesWithScores}
-        />
+        <GameHistoryTable games={games} />
       </Paper>
     </Container>
   );
